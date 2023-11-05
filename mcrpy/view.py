@@ -25,6 +25,9 @@ import argparse
 from typing import Any, Dict, List, Union
 
 import numpy as np
+import tensorflow as tf
+
+tf.config.set_visible_devices([], 'GPU')
 
 from mcrpy.src import descriptor_factory
 from mcrpy.src import loader
@@ -38,8 +41,8 @@ from mcrpy.src.Symmetry import symmetries, Symmetry
 def view_generic_pickle(data: Dict, save_as: str = None, original_ms: Microstructure = None):
     if not isinstance(data, dict):
         raise NotImplementedError('Only pickles that contain dictionaries can be viewed.')
-    if save_as is not None:
-        assert save_as.endswith('.png')
+    # if save_as is not None:
+    #     assert save_as.endswith('.png')
     logging.info(f'Data contains keys {data.keys()}')
     if 'scatter_data' in data and 'raw_data' in data:
         view_convergence_data(data, original_ms)
@@ -51,7 +54,9 @@ def view_generic_pickle(data: Dict, save_as: str = None, original_ms: Microstruc
             loader.load_plugins([f'mcrpy.descriptors.{k}' ])
             visualize = descriptor_factory.get_visualization(k)
             visualize(v, descriptor_type=k, 
-                    save_as=f'{save_as[:-4]}_{k}.png' if save_as is not None else None)
+                    save_as=f'{save_as}_{k}' if save_as is not None else None)
+
+
             # except Exception as e:
             #     logging.error(f'Error plotting {k}')
         logging.info('done visualizations')
@@ -156,9 +161,9 @@ def main(args):
         with open(args.infile, 'rb') as f:
             data = pickle.load(f)
         if save_as and not isinstance(data, Microstructure):
-            save_as = f'{save_as[:-7]}_D.png'
+            save_as = f'{save_as[:-7]}_D'
     elif args.infile.endswith('.npy'):
-        save_as = f'{save_as[:-4]}_MS.png' if save_as else None
+        save_as = f'{save_as[:-4]}_MS' if save_as else None
         data = Microstructure.from_npy(args.infile)
     else:
         raise NotImplementedError('Filetype not supported')

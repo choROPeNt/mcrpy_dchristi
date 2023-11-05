@@ -179,12 +179,13 @@ class Descriptor(ABC):
             save_as: str = None,
             descriptor_type: str = None):
         if isinstance(descriptor_value, (tuple, list)):
-            if save_as is not None:
-                assert save_as.endswith('.png')
+            # if save_as is not None:
+            #     assert save_as.endswith('.png')
             for dim_number, dim_value in enumerate(descriptor_value):
+                print(dim_number)
                 cls.visualize_slice(
                         dim_value,
-                        save_as=f'{save_as[:-4]}_dimension_{dim_number+1}.png' if save_as is not None else None,
+                        save_as=f'{save_as}_dimension_{dim_number+1}' if save_as is not None else None,
                         descriptor_type=descriptor_type)
         else:
             cls.visualize_slice(descriptor_value, save_as=save_as, descriptor_type=descriptor_type)
@@ -198,7 +199,8 @@ class Descriptor(ABC):
             descriptor_type: str = None):
         import matplotlib
         import matplotlib.pyplot as plt
-        
+        import tikzplotlib
+
         matplotlib.rcParams.update({
             "pgf.texsystem":"pdflatex",
             'font.family': 'serif',
@@ -211,7 +213,8 @@ class Descriptor(ABC):
         
         n_phases = descriptor_value.shape[0]
         mg_levels = descriptor_value.shape[1]
-        fig, axs = plt.subplots(n_phases, mg_levels, squeeze=False)
+        fig, axs = plt.subplots(n_phases, mg_levels, figsize=(2*mg_levels,2*n_phases))
+
         # fig, axs = plt.subplots(n_phases, mg_levels, sharex=True, sharey=True, squeeze=False)
         for n_phase in range(n_phases):
             for mg_level in range(mg_levels):
@@ -221,10 +224,14 @@ class Descriptor(ABC):
                         descriptor_type=descriptor_type,
                         mg_level=mg_level,
                         n_phase=n_phase if n_phases > 1 else 1)
-        plt.tight_layout()
+        plt.tight_layout(pad=1)
         if save_as:
             logging.info(f'saving image as {save_as}')
-            plt.savefig(save_as, dpi=600, bbox_inches='tight')
+            plt.savefig(save_as + '.png', dpi=600, bbox_inches='tight')
+            ## TODO add matplot tikz
+
+
+            tikzplotlib.save(save_as + '.tex')
         else:
             plt.show()
         plt.close()

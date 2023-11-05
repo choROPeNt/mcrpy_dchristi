@@ -26,6 +26,9 @@ import pickle
 import os
 from typing import Any, Callable, Dict, List, Tuple, Union
 import tensorflow as tf
+
+tf.config.set_visible_devices([], 'GPU')
+
 with contextlib.suppress(Exception):
     tf.config.experimental.enable_tensor_float_32_execution(False)
 # tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
